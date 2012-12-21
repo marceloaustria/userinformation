@@ -1,0 +1,66 @@
+class InfosController < ApplicationController
+  before_filter :checking, :except => [:showinfo, :index,:show, :new, :create,:new, :search, :edit, :update, :destroy]
+  def index
+@infos = Info.order("lastname").page(params[:page]).per(10)
+  end
+ def showinfo
+    @info = Info.find(params[:id])
+  end
+  def show
+    @info = Info.find(params[:id])
+  end
+
+  def new
+@info = Info.new(params[:info])
+@info.addresses.build
+@info.contacts.build
+
+  end
+
+  def edit
+    @info = Info.find(params[:id])
+  end
+
+  def create
+@info = Info.new(params[:info])
+@info.addresses.build((params[:address]))
+@info.contacts.build((params[:contact]))
+      if @info.save
+      flash[:notice] = "Successfully created Info."
+      redirect_to @info
+      else
+ render :action => 'new'
+    end
+  end
+
+
+  def update
+    @info = Info.find(params[:id])
+      if @info.update_attributes(params[:info]) and @info.addresses[0].update_attributes(params[:address]) and @info.contacts[0].update_attributes(params[:contact])
+      flash[:notice] = "Info was successfully updated."
+      #redirect_to @info
+      redirect_to @info
+      else
+        render :action => 'edit'
+    end
+  end
+
+  def destroy
+    @info = Info.find(params[:id])
+    @info.destroy
+    flash[:notice] = "Info was successfully deleted."
+    redirect_to @info
+
+  end
+
+  def checking
+authenticate_or_request_with_http_basic("Please enter your Username and Password") do |username, password|
+username == "admin" and password == "admin"
+end
+
+
+end
+
+
+end
+
